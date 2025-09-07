@@ -32,7 +32,7 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       
       try {
@@ -47,7 +47,6 @@ api.interceptors.response.use(
         
         return api(originalRequest);
       } catch (refreshError) {
-        // Redirect to login if refresh fails
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         window.location.href = '/login';
@@ -94,29 +93,23 @@ export const listingsAPI = {
   favoriteListing: (id) => api.post(`/listings/${id}/favorite/`),
   unfavoriteListing: (id) => api.delete(`/listings/${id}/favorite/`),
   getFavorites: () => api.get('/listings/favorites/'),
-  promoteListing: (id, packageId) => api.post(`/listings/${id}/promote/`, { package: packageId }),
 };
 
 // Categories API
 export const categoriesAPI = {
   getCategories: () => api.get('/categories/'),
-  getCategory: (id) => api.get(`/categories/${id}/`),
 };
 
 // Locations API
 export const locationsAPI = {
   getLocations: () => api.get('/locations/'),
-  getLocation: (id) => api.get(`/locations/${id}/`),
 };
 
 // Reviews API
 export const reviewsAPI = {
   getReviews: (params) => api.get('/reviews/', { params }),
-  getReview: (id) => api.get(`/reviews/${id}/`),
   createReview: (reviewData) => api.post('/reviews/', reviewData),
-  updateReview: (id, reviewData) => api.put(`/reviews/${id}/`, reviewData),
-  deleteReview: (id) => api.delete(`/reviews/${id}/`),
-  approveReview: (id) => api.post(`/reviews/${id}/approve/`),
+  getUserReviews: (userId) => api.get(`/users/${userId}/reviews/`),
 };
 
 // Bookings API
@@ -128,15 +121,27 @@ export const bookingsAPI = {
   cancelBooking: (id) => api.post(`/bookings/${id}/cancel/`),
   confirmBooking: (id) => api.post(`/bookings/${id}/confirm/`),
   completeBooking: (id) => api.post(`/bookings/${id}/complete/`),
+  getCustomerBookings: () => api.get('/bookings/customer/'),
+  getProviderBookings: () => api.get('/bookings/provider/'),
 };
 
 // Messages API
 export const messagesAPI = {
   getConversations: () => api.get('/conversations/'),
   getConversation: (id) => api.get(`/conversations/${id}/`),
-  getMessages: (conversationId) => api.get(`/conversations/${conversationId}/messages/`),
+  createConversation: (participantIds, listingId = null) => 
+    api.post('/conversations/', { participants: participantIds, listing: listingId }),
+  getMessages: (conversationId, params) => api.get(`/conversations/${conversationId}/messages/`, { params }),
   sendMessage: (conversationId, messageData) => api.post(`/conversations/${conversationId}/messages/`, messageData),
   markAsRead: (conversationId) => api.post(`/conversations/${conversationId}/read/`),
+  deleteConversation: (id) => api.delete(`/conversations/${id}/`),
+};
+
+// Favorites API
+export const favoritesAPI = {
+  getFavorites: () => api.get('/favorites/'),
+  addFavorite: (listingId) => api.post('/favorites/', { listing: listingId }),
+  removeFavorite: (listingId) => api.delete(`/favorites/${listingId}/`),
 };
 
 // Payments API
@@ -146,6 +151,9 @@ export const paymentsAPI = {
   createPaymentIntent: (paymentData) => api.post('/payments/create-intent/', paymentData),
   confirmPayment: (paymentId) => api.post(`/payments/${paymentId}/confirm/`),
   refundPayment: (paymentId) => api.post(`/payments/${paymentId}/refund/`),
+  getPaymentMethods: () => api.get('/payments/methods/'),
+  addPaymentMethod: (methodData) => api.post('/payments/methods/', methodData),
+  removePaymentMethod: (methodId) => api.delete(`/payments/methods/${methodId}/`),
 };
 
 // Subscriptions API
@@ -171,18 +179,25 @@ export const analyticsAPI = {
   getStats: (params) => api.get('/analytics/stats/', { params }),
 };
 
-// Ads API
-export const adsAPI = {
-  getCampaigns: () => api.get('/ads/campaigns/'),
-  createCampaign: (campaignData) => api.post('/ads/campaigns/', campaignData),
-  getAdImpressions: (campaignId) => api.get(`/ads/campaigns/${campaignId}/impressions/`),
-  getAdClicks: (campaignId) => api.get(`/ads/campaigns/${campaignId}/clicks/`),
+// Service Requests API
+export const serviceRequestsAPI = {
+  getServiceRequests: (params) => api.get('/service-requests/', { params }),
+  getServiceRequest: (id) => api.get(`/service-requests/${id}/`),
+  createServiceRequest: (requestData) => api.post('/service-requests/', requestData),
+  updateServiceRequest: (id, requestData) => api.put(`/service-requests/${id}/`, requestData),
+  deleteServiceRequest: (id) => api.delete(`/service-requests/${id}/`),
+  closeServiceRequest: (id) => api.post(`/service-requests/${id}/close/`),
+  assignServiceRequest: (id, providerId) => api.post(`/service-requests/${id}/assign/`, { provider: providerId }),
 };
 
-export const wishlistAPI = {
-  getWishlist: () => api.get('/wishlist/'),
-  addToWishlist: (listingId) => api.post('/wishlist/', { listing: listingId }),
-  removeFromWishlist: (listingId) => api.delete(`/wishlist/${listingId}/`),
+// Reports API
+export const reportsAPI = {
+  createReport: (data) => api.post('/reports/', data),
+  getReports: (params) => api.get('/reports/', { params }),
+  getReport: (id) => api.get(`/reports/${id}/`),
+  updateReport: (id, data) => api.put(`/reports/${id}/`, data),
+  resolveReport: (id) => api.post(`/reports/${id}/resolve/`),
+  dismissReport: (id) => api.post(`/reports/${id}/dismiss/`),
 };
 
 export default api;
