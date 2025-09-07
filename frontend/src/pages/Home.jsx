@@ -49,7 +49,7 @@ const Home = () => {
         <Col>
           <h2 className="mb-4">Browse Categories</h2>
           <Row>
-            {categories.slice(0, 8).map(category => (
+           {(Array.isArray(categories) ? categories.slice(0, 8) : []).map(category => (
               <Col key={category.id} md={3} className="mb-3">
                 <Card className="h-100 text-center">
                   <Card.Body>

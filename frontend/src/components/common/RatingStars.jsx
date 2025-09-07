@@ -2,8 +2,10 @@ import React from 'react';
 import { Stack } from 'react-bootstrap';
 
 const RatingStars = ({ rating, maxRating = 5, size = '1rem', onRatingChange, editable = false }) => {
-  const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 !== 0;
+  // Convert rating to number to ensure toFixed() works
+  const numericRating = typeof rating === 'string' ? parseFloat(rating) : Number(rating);
+  const fullStars = Math.floor(numericRating);
+  const hasHalfStar = numericRating % 1 !== 0;
   const emptyStars = maxRating - fullStars - (hasHalfStar ? 1 : 0);
 
   const handleStarClick = (newRating) => {
@@ -48,7 +50,7 @@ const RatingStars = ({ rating, maxRating = 5, size = '1rem', onRatingChange, edi
       
       {!editable && (
         <span className="text-muted ms-2 small">
-          ({rating.toFixed(1)})
+          ({numericRating.toFixed(1)})
         </span>
       )}
     </Stack>

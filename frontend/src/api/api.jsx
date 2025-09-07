@@ -1,8 +1,7 @@
 // src/api/api.jsx
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
-
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 // Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -10,6 +9,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: false, // Set to true if your backend uses cookies/sessions
 });
 
 // Request interceptor to add auth token
@@ -198,6 +198,15 @@ export const reportsAPI = {
   updateReport: (id, data) => api.put(`/reports/${id}/`, data),
   resolveReport: (id) => api.post(`/reports/${id}/resolve/`),
   dismissReport: (id) => api.post(`/reports/${id}/dismiss/`),
+};
+
+// Add this to the existing api.jsx file, around line 250 (after favoritesAPI)
+
+// Wishlist API
+export const wishlistAPI = {
+  getWishlist: () => api.get('/wishlist/'),
+  addToWishlist: (listingId) => api.post('/wishlist/', { listing: listingId }),
+  removeFromWishlist: (listingId) => api.delete(`/wishlist/${listingId}/`),
 };
 
 export default api;
